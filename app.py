@@ -7,6 +7,7 @@ init_db()
 st.set_page_config(page_title="Auth Demo", page_icon="🔒")
 
 MENU = ["Login", "Register", "Forgot Password"]
+
 choice = st.sidebar.selectbox("Choose page", MENU)
 
 EMAIL_REGEX = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
@@ -110,7 +111,14 @@ def logged_in_view():
     st.write(f"You're logged in as: **{st.session_state.user}**")
     if st.button("Logout"):
         st.session_state.user = None
-        st.experimental_rerun()
+        # st.experimental_rerun() was removed in newer Streamlit versions
+        # Fallback: try to call it, otherwise change query params to force a rerun
+        try:
+            st.experimental_rerun()
+        except AttributeError:
+            import time
+            st.experimental_set_query_params(_=int(time.time()))
+            return
 
 
 if choice == "Login":
